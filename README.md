@@ -57,7 +57,7 @@
 ### Installation 
 
 ```commandline
-pip install -i https://test.pypi.org/simple/ arbutus
+pip install arbutus
 ```
 
 ## Usage
@@ -145,7 +145,7 @@ Alvaro U. Bravo - [alvaroubravo@gmail.com](mailto:alvaroubravo@gmail.com)
 
 Project Links:
 * [arbutus - GitHub](https://github.com/aubravo/arbutus)
-* [arbutus - PyPi](https://test.pypi.org/project/arbutus/)
+* [arbutus - PyPi](https://pypi.org/project/arbutus/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
