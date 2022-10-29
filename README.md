@@ -62,7 +62,66 @@ pip install -i https://test.pypi.org/simple/ arbutus
 
 ## Usage
 
-To-Do
+Once installed, the cli can be defined using a yaml file, using the keywords branches to define new branch names and 
+arguments to define new arguments and it's characteristics. For example:
+```yaml
+main:
+  branches:
+    sum:
+      arguments:
+        integers:
+          type: float
+          nargs: +
+          help: list of integers to sum
+          action:
+            name: sum_
+            source: sample
+    multiply:
+      arguments:
+        integers:
+          type: float
+          nargs: +
+          help: list of integers to sum
+          action:
+            name: mult_
+            source: sample
+```
+
+The yaml above would imply that a module named sample includes the actions `sum_` and `mult_`.
+These actions can be defined using the `@arbutus.Arbutus.new_action` wrapper. For example:
+
+```python
+import arbutus
+
+@arbutus.Arbutus.new_action
+def sum_(*args, **kwargs):
+    total = 0
+    for number in kwargs['values']:
+        total += number
+    print(total)
+```
+
+Finally, the CLI itself can be constructed by calling the `from_yaml` method:
+
+```python
+import arbutus
+
+if __name__ == '__main__':
+    cli = arbutus.Arbutus()
+    cli.from_yaml('sample/cli.yaml')
+    cli.parse_args()
+```
+
+The CLI can then be called like:
+
+```bash
+# This would display general help about the CLI functionality
+python3 sample/sample.py -h
+# This would display general help about the sum test functionality
+python3 sample/sample.py sum -h
+# This would throw the result of running the sum function with the passed arguments
+python3 sample/sample.py sum 12 25 3
+```
 
 
 ## Roadmap

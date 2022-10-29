@@ -4,15 +4,17 @@ Parameter handling from CLI
 
 # Python standard library
 import argparse
+import yaml
+import importlib
 
 
-class CLI:
+class Arbutus:
+    parsed_args = {}
+    breadcrumbs = ''
+    parameters = {}
+
     def __init__(self, arguments: list = None):
         self.main_branch = argparse.ArgumentParser(arguments)
-        self.parsed_args = {}
-        self.breadcrumbs = ''
-        self.parameters = {}
-
 
     def parse_args(self) -> dict:
         self.parsed_args = vars(self.main_branch.parse_args())
@@ -28,6 +30,14 @@ class CLI:
         self.__dict__[branch_name + '_branch'] = \
             self.__dict__[node_name + '_node'].add_parser(branch_name, help=help_text)
         return self.__dict__[branch_name + '_branch']
+
+    def add_argument(self, branch: argparse.ArgumentParser, argument_name: str, **kwargs):
+        if 'type' in kwargs and kwargs['type'] in ['int', 'str', 'float']:
+            kwargs['type'] = eval(kwargs['type'])
+        if 'action' in kwargs:
+            i = importlib.import_module(f"{kwargs['action']['source']}")
+            kwargs['action'] = eval(f"i.{kwargs['action']['name']}")
+        branch.add_argument(argument_name, **kwargs)
 
     @staticmethod
     def new_action(method):
@@ -48,23 +58,31 @@ class CLI:
             else:
                 self.parameters[x] = self.parsed_args[x]
 
-    def __crawl_json_cli__(self, json_as_dict: dict):
-        for key, value in json_as_dict.items():
+    def from_dict(self, dict_: dict):
+        for key, value in dict_.items():
             if 'branches' in value:
                 for _key in value['branches']:
                     self.add_branch(_key, key)
-                self.__crawl_json_cli__(value['branches'])
+                self.from_dict(value['branches'])
             elif 'arguments' in value:
                 for _key in value['arguments']:
-                    self.get_branch(key).add_argument(_key)
+                    self.add_argument(self.get_branch(key), _key, **value['arguments'][_key])
             else:
-                self.__crawl_json_cli__(value)
+                self.from_dict(value)
+
+    def from_yaml(self, filename: str = './sample/cli.yaml'):
+        with open(filename, 'r') as yaml_file:
+            yaml_as_dict = yaml.load(yaml_file, Loader=yaml.SafeLoader)
+        self.from_dict(yaml_as_dict)
 
 
 if __name__ == '__main__':
     import yaml
-    with open('../../../gxiba/cli.yaml', 'r') as cli_yaml:
+
+    with open('../gxiba/cli.yaml', 'r') as cli_yaml:
         x = yaml.load(cli_yaml, Loader=yaml.SafeLoader)
-    cli = CLI()
-    cli.__crawl_json_cli__(x)
+
+
+    cli = Arbutus()
+    cli.from_yaml(x)
     cli.parse_args()
