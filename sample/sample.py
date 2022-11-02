@@ -1,9 +1,9 @@
 import sys
-sys.path.append('.')
-import arbutus
+sys.path.append('..')
+from arbutus import Arbutus
 
 
-@arbutus.Arbutus.new_action
+@Arbutus.new_action
 def sum_(*args, **kwargs):
     total = 0
     for number in kwargs['values']:
@@ -11,7 +11,7 @@ def sum_(*args, **kwargs):
     print(total)
 
 
-@arbutus.Arbutus.new_action
+@Arbutus.new_action
 def mult_(*args, **kwargs):
     total = 1
     for number in kwargs['values']:
@@ -20,6 +20,8 @@ def mult_(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    cli = arbutus.Arbutus()
-    cli.from_yaml('sample/cli.yaml')
+    cli = Arbutus()
+    cli.from_yaml('cli.yaml')
     cli.parse_args()
+    print(cli.breadcrumbs)
+    print(cli.parsed_args)

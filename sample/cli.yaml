@@ -18,3 +18,10 @@ main:
           action:
             name: mult_
             source: sample
+    store:
+      arguments:
+        something:
+          type: str
+          nargs: +
+          help: string or strings to save
+          action: store

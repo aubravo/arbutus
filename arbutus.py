@@ -9,12 +9,11 @@ import importlib
 
 
 class Arbutus:
-    parsed_args = {}
-    breadcrumbs = ''
-    parameters = {}
-
-    def __init__(self, arguments: list = None):
+    def __init__(self, cli_path=None, arguments=None):
         self.main_branch = argparse.ArgumentParser(arguments)
+        self.parsed_args = {}
+        self.breadcrumbs = ''
+        self.parameters = {}
 
     def parse_args(self) -> dict:
         self.parsed_args = vars(self.main_branch.parse_args())
@@ -35,8 +34,18 @@ class Arbutus:
         if 'type' in kwargs and kwargs['type'] in ['int', 'str', 'float']:
             kwargs['type'] = eval(kwargs['type'])
         if 'action' in kwargs:
-            i = importlib.import_module(f"{kwargs['action']['source']}")
-            kwargs['action'] = eval(f"i.{kwargs['action']['name']}")
+            if type(kwargs['action']) is dict:
+                try:
+                    module = importlib.import_module(f"{kwargs['action']['source']}")
+                    kwargs['action'] = eval(f"module.{kwargs['action']['name']}")
+                except KeyError:
+                    raise
+            elif type(kwargs['action']) is str:
+                if kwargs['action'] not in ['store', 'store_const', 'store_true', 'append', 'append_const', 'count',
+                                            'help', 'version']:
+                    raise KeyError
+            else:
+                raise TypeError
         branch.add_argument(argument_name, **kwargs)
 
     @staticmethod
@@ -70,19 +79,7 @@ class Arbutus:
             else:
                 self.from_dict(value)
 
-    def from_yaml(self, filename: str = './sample/cli.yaml'):
+    def from_yaml(self, filename: str = './config/cli.yaml'):
         with open(filename, 'r') as yaml_file:
             yaml_as_dict = yaml.load(yaml_file, Loader=yaml.SafeLoader)
         self.from_dict(yaml_as_dict)
-
-
-if __name__ == '__main__':
-    import yaml
-
-    with open('../gxiba/cli.yaml', 'r') as cli_yaml:
-        x = yaml.load(cli_yaml, Loader=yaml.SafeLoader)
-
-
-    cli = Arbutus()
-    cli.from_yaml(x)
-    cli.parse_args()

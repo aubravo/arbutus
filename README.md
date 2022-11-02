@@ -52,7 +52,7 @@
 
 * Python 3.8 or above
   * argparse
-  * logger
+  * logging
 
 ### Installation 
 
@@ -76,24 +76,22 @@ main:
           action:
             name: sum_
             source: sample
-    multiply:
+    store:
       arguments:
-        integers:
-          type: float
+        something:
+          type: str
           nargs: +
-          help: list of integers to sum
-          action:
-            name: mult_
-            source: sample
+          help: string or strings to store
+          action: store
 ```
 
-The yaml above would imply that a module named sample includes the actions `sum_` and `mult_`.
-These actions can be defined using the `@arbutus.Arbutus.new_action` wrapper. For example:
+The yaml above would imply that a `module` named sample includes the action `sum_`, and makes use of the `store` action. 
+These actions can be defined using the `@Arbutus.new_action` wrapper. For example:
 
 ```python
-import arbutus
+from arbutus import Arbutus
 
-@arbutus.Arbutus.new_action
+@Arbutus.new_action
 def sum_(*args, **kwargs):
     total = 0
     for number in kwargs['values']:
