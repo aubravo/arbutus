@@ -46,6 +46,10 @@ class Arbutus:
                     raise KeyError
             else:
                 raise TypeError
+        if 'optional' in kwargs and kwargs['optional'] == True:
+            argument_name = '--' + argument_name
+            print(argument_name)
+            kwargs.pop('optional')
         branch.add_argument(argument_name, **kwargs)
 
     @staticmethod
@@ -71,7 +75,8 @@ class Arbutus:
         for key, value in dict_.items():
             if 'branches' in value:
                 for _key in value['branches']:
-                    self.add_branch(_key, key)
+                    help_text = value['branches'][_key].get('help')
+                    self.add_branch(_key, key, help_text)
                 self.from_dict(value['branches'])
             elif 'arguments' in value:
                 for _key in value['arguments']:

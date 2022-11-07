@@ -18,6 +18,9 @@ main:
           action:
             name: mult_
             source: sample
+        sample-test-parameter:
+          optional: True
+          action: store_true
     store:
       arguments:
         something:
